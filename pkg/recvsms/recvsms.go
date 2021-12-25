@@ -12,7 +12,7 @@ type Number struct {
 	// Phone number without country code.
 	PhoneNumber string
 	// String including the country code and the number.
-	// Probably no space inbetween. This should only be used when
+	// Probably no space in-between. This should only be used when
 	// we cannot separate CC and number.
 	FullString string
 }
