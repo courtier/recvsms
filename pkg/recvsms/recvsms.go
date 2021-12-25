@@ -1,6 +1,7 @@
 package recvsms
 
 import (
+	"net/http"
 	"strings"
 	"time"
 )
@@ -38,14 +39,19 @@ type Backend interface {
 	// and returns them in an array. Not mature enough to write a definite
 	// description. TODO#
 	ListMessagesForNumber(Number) ([]Message, error)
+	// Returns the name of the backend.
+	GetName() string
+	// Returns the latest cached numbers, if there are any; if not returns error.
+	GetNumbers() ([]Number, error)
+	// (Subjective) score of a backend, a number out of 10. The coder should decide this by considering
+	// the backend's reliability, stability and quality. A 10 would be
+	// that nearly every number works perfectly and updates the messages
+	// as fast as possible, or even just actually updates the messages.
+	Score() int
+	// Set the HTTP client to be used for the backend, useful when the user
+	// wants to use their own client for proxies, timeouts etc.
+	SetHTTPClient(*http.Client)
 }
-
-// type Backend struct {
-// 	Name       string
-// 	Numbers    []Number
-// 	HTTPClient *http.Client
-// 	Ranking    int
-// }
 
 var (
 	backends = map[string]Backend{

@@ -1,10 +1,13 @@
 package recvsms
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/biter777/countries"
 )
 
 // SMS24meBackend is the backend for SMS24.me, the struct includes a name
@@ -13,21 +16,15 @@ type SMS24meBackend struct {
 	Name       string
 	Numbers    []Number
 	HTTPClient *http.Client
-	// A ranking out of 10. The coder should decide this by considering
-	// the backend's consistency, stability and quality. A 10 would be
-	// that nearly every number works perfectly and updates the messages
-	// as fast as possible, or even just actually updates the messages.
-	Ranking int
 }
 
-// Returns a new backend for SMS24.me
+// Returns a new backend for SMS24.me, uses a
 func NewSMS24MeBackend() *SMS24meBackend {
 	b := SMS24meBackend{
 		Name:       "SMS24.me",
 		HTTPClient: http.DefaultClient,
 	}
 	b.HTTPClient.Timeout = 10 * time.Second
-	b.Ranking = 10
 	return &b
 }
 
@@ -44,9 +41,13 @@ func (b *SMS24meBackend) ScrapeNumbers(cache bool) ([]Number, error) {
 			return nil, err
 		}
 		str := string(bs)
+		ctrs := getAllStringsBetween(str, `<h5 class="text-secondary">`, `</h5>`)
 		nrs := getAllStringsBetween(str, `fw-bold text-primary mb-2">`, `</div>`)
-		for _, num := range nrs {
-			numbers = append(numbers, Number{FullString: num})
+		for i, num := range nrs {
+			country := countries.ByName(ctrs[i])
+			cc := country.Info().CallCodes[0].String()
+			n := num[len(cc):]
+			numbers = append(numbers, Number{CountryCode: cc, PhoneNumber: n, FullString: num})
 		}
 	}
 	if cache {
@@ -57,4 +58,23 @@ func (b *SMS24meBackend) ScrapeNumbers(cache bool) ([]Number, error) {
 
 func (b *SMS24meBackend) ListMessagesForNumber(n Number) ([]Message, error) {
 	return nil, nil
+}
+
+func (b *SMS24meBackend) GetName() string {
+	return b.Name
+}
+
+func (b *SMS24meBackend) GetNumbers() ([]Number, error) {
+	if b.Numbers != nil {
+		return b.Numbers, nil
+	}
+	return nil, errors.New("no cached numbers")
+}
+
+func (b *SMS24meBackend) Score() int {
+	return 10
+}
+
+func (b *SMS24meBackend) SetHTTPClient(c *http.Client) {
+	b.HTTPClient = c
 }
