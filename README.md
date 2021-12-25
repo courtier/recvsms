@@ -2,5 +2,4 @@
 You can think of recvsms as yt-dl for free sms services. It will support many SMS "backends" eventually. It also doubles as a sms receiving library.
 
 ## TODO:
-- allow users to pass their own http clients to the backends (to allow the use of proxies, timeouts etc.)
-- implement default timeout
+- some kind of a priority/stability/quality ranking for the backends, directly coded as a const

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	for _, backend := range recvsms.ListBackends() {
-		nums, err := backend.ScrapeNumbers()
+		nums, err := backend.ScrapeNumbers(false)
 		if err != nil {
 			panic(err)
 		}
