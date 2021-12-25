@@ -1,12 +1,18 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/courtier/recvsms/pkg/recvsms"
 )
 
 func main() {
-	print("hello")
 	for _, backend := range recvsms.ListBackends() {
-		print(backend)
+		nums, err := backend.ScrapeNumbers()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(nums)
+		fmt.Println(len(nums))
 	}
 }
