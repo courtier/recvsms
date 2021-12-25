@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+// A phone number, CountryCode & PhoneNumber may not always be available,
+// but the FullString field will always be set.
 type Number struct {
 	// Country code.
 	CountryCode string
@@ -17,6 +19,7 @@ type Number struct {
 	FullString string
 }
 
+// A message is a message scraped off a backend.
 type Message struct {
 	// Message sender if available
 	Sender string
@@ -29,6 +32,9 @@ type Message struct {
 	Found time.Time
 }
 
+// A backend is a SMS service that allows anyone to receive SMS represented
+// as a interface. there are/will be many unique backends which are retrievable
+// via the ListBackends() function.
 type Backend interface {
 	// ScrapeNumbers scrapes an SMS backend and returns all the numbers
 	// in an array. If cache is true, these will be saved in the Numbers
@@ -59,6 +65,7 @@ var (
 	}
 )
 
+// Get all backends in a map, with their names as the key.
 func ListBackends() map[string]Backend {
 	return backends
 }

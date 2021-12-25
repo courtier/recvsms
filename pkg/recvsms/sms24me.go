@@ -18,7 +18,8 @@ type SMS24meBackend struct {
 	HTTPClient *http.Client
 }
 
-// Returns a new backend for SMS24.me, uses a
+// NewSMS24MeBackend Returns a new backend for SMS24.me, uses a default
+// HTTP client with a timeout of 10 seconds.
 func NewSMS24MeBackend() *SMS24meBackend {
 	b := SMS24meBackend{
 		Name:       "SMS24.me",
