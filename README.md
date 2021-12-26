@@ -1,6 +1,6 @@
 # recvsms - use free sms services through cli
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/courtier/recvsms.svg)](https://pkg.go.dev/github.com/courtier/recvsms) [![Go Report Card](https://goreportcard.com/badge/github.com/courtier/recvsms)](https://goreportcard.com/report/github.com/courtier/recvsms)
+[![Go Reference](https://pkg.go.dev/badge/github.com/courtier/recvsms.svg)](https://pkg.go.dev/github.com/courtier/recvsms/pkg/recvsms) [![Go Report Card](https://goreportcard.com/badge/github.com/courtier/recvsms)](https://goreportcard.com/report/github.com/courtier/recvsms)
 
 You can think of recvsms as yt-dl for free sms services. It will support many SMS "backends" eventually. It also doubles as a sms receiving library.
 
