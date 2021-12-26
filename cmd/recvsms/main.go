@@ -12,7 +12,11 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(nums)
-		fmt.Println(len(nums))
+		fmt.Println(nums[0])
+		msgs, err := backend.ListMessagesForNumber(nums[0], false)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(msgs[0])
 	}
 }

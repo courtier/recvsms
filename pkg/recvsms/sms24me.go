@@ -2,7 +2,6 @@ package recvsms
 
 import (
 	"errors"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
@@ -14,8 +13,9 @@ import (
 // string
 type SMS24meBackend struct {
 	Name       string
-	Numbers    []Number
 	HTTPClient *http.Client
+	Numbers    []Number
+	Messages   []Message
 }
 
 // NewSMS24MeBackend Returns a new backend for SMS24.me, uses a default
@@ -32,23 +32,26 @@ func NewSMS24MeBackend() *SMS24meBackend {
 func (b *SMS24meBackend) ScrapeNumbers(cache bool) ([]Number, error) {
 	numbers := []Number{}
 	for i := 1; i < 21; i++ {
-		resp, err := http.Get("https://sms24.me/en/numbers/page/" + strconv.Itoa(i) + "/")
+		resp, err := b.HTTPClient.Get("https://sms24.me/en/numbers/page/" + strconv.Itoa(i) + "/")
 		if err != nil {
 			return nil, err
 		}
 		defer resp.Body.Close()
-		bs, err := ioutil.ReadAll(resp.Body)
+		str, err := readBodyToString(resp.Body)
 		if err != nil {
 			return nil, err
 		}
-		str := string(bs)
 		ctrs := getAllStringsBetween(str, `<h5 class="text-secondary">`, `</h5>`)
 		nrs := getAllStringsBetween(str, `fw-bold text-primary mb-2">`, `</div>`)
 		for i, num := range nrs {
 			country := countries.ByName(ctrs[i])
 			cc := country.Info().CallCodes[0].String()
 			n := num[len(cc):]
-			numbers = append(numbers, Number{CountryCode: cc, PhoneNumber: n, FullString: num})
+			numbers = append(numbers, Number{
+				CountryCode: cc,
+				PhoneNumber: n,
+				FullString:  num,
+			})
 		}
 	}
 	if cache {
@@ -57,8 +60,36 @@ func (b *SMS24meBackend) ScrapeNumbers(cache bool) ([]Number, error) {
 	return numbers, nil
 }
 
-func (b *SMS24meBackend) ListMessagesForNumber(n Number) ([]Message, error) {
-	return nil, nil
+func (b *SMS24meBackend) ListMessagesForNumber(n Number, cache bool) ([]Message, error) {
+	messages := []Message{}
+	if len(n.FullString) < 1 {
+		return nil, errors.New("invalid number")
+	}
+	url := "https://sms24.me/en/numbers/" + n.FullString[1:]
+	resp, err := b.HTTPClient.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	str, err := readBodyToString(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	msgs := getAllStringsBetween(str, `                    </div>
+
+                    `, "\n            </div>")
+	senders := getAllStringsBetween(str, `From: <a href="/en/messages/`, `/">`)
+	for i, m := range msgs {
+		messages = append(messages, Message{
+			Sender:  senders[i],
+			Content: m,
+			Found:   time.Now(),
+		})
+	}
+	if cache {
+		b.Messages = messages
+	}
+	return messages, nil
 }
 
 func (b *SMS24meBackend) GetName() string {
@@ -70,6 +101,13 @@ func (b *SMS24meBackend) GetNumbers() ([]Number, error) {
 		return b.Numbers, nil
 	}
 	return nil, errors.New("no cached numbers")
+}
+
+func (b *SMS24meBackend) GetMessages() ([]Message, error) {
+	if b.Messages != nil {
+		return b.Messages, nil
+	}
+	return nil, errors.New("no cached messages")
 }
 
 func (b *SMS24meBackend) Score() int {

@@ -1,6 +1,8 @@
 package recvsms
 
 import (
+	"io"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -21,11 +23,11 @@ type Number struct {
 
 // A message is a message scraped off a backend.
 type Message struct {
-	// Message sender if available
+	// Message sender if available. May not always be available.
 	Sender string
-	// Message content
+	// Message content.
 	Content string
-	// When the message was sent.
+	// When the message was sent. May not always be available.
 	// TODO#turn this into a time.Time
 	Sent string
 	// When the message was scraped off/seen on the website.
@@ -37,18 +39,19 @@ type Message struct {
 // via the ListBackends() function.
 type Backend interface {
 	// ScrapeNumbers scrapes an SMS backend and returns all the numbers
-	// in an array. If cache is true, these will be saved in the Numbers
-	// field of the backend struct, which can be accessed directly by the user.
-	// Cache can be set to false, to conserve memory.
+	// in an array. If cache is true, the numbers will be cached and be available
+	// through the GetNumbers() function.
 	ScrapeNumbers(cache bool) ([]Number, error)
 	// ListMessagesForNumber scrapes all the messages of the number,
-	// and returns them in an array. Not mature enough to write a definite
-	// description. TODO#
-	ListMessagesForNumber(Number) ([]Message, error)
+	// and returns them in an array. If cache is true, messaages will
+	// be cached in the Messages field.
+	ListMessagesForNumber(number Number, cache bool) ([]Message, error)
 	// Returns the name of the backend.
 	GetName() string
 	// Returns the latest cached numbers, if there are any; if not returns error.
 	GetNumbers() ([]Number, error)
+	// Returns the latest cached messages, if there are any; if not returns error.
+	GetMessages() ([]Message, error)
 	// (Subjective) score of a backend, a number out of 10. The coder should decide this by considering
 	// the backend's reliability, stability and quality. A 10 would be
 	// that nearly every number works perfectly and updates the messages
@@ -82,4 +85,13 @@ func getAllStringsBetween(str, left, right string) []string {
 		}
 	}
 	return strs
+}
+
+func readBodyToString(body io.ReadCloser) (string, error) {
+	bs, err := ioutil.ReadAll(body)
+	if err != nil {
+		return "", err
+	}
+	str := string(bs)
+	return str, nil
 }
