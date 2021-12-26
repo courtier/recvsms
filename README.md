@@ -11,3 +11,5 @@ You can think of recvsms as yt-dl for free sms services. It will support many SM
 - Lightweight
 
 ## TODO:
+- Add more backends
+- Make an actually working program
