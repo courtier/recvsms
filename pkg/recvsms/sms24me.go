@@ -51,6 +51,7 @@ func (b *SMS24meBackend) ScrapeNumbers(cache bool) ([]Number, error) {
 				CountryCode: cc,
 				PhoneNumber: n,
 				FullString:  num,
+				Backend:     b,
 			})
 		}
 	}
@@ -84,6 +85,7 @@ func (b *SMS24meBackend) ListMessagesForNumber(n Number, cache bool) ([]Message,
 			Sender:  senders[i],
 			Content: m,
 			Found:   time.Now(),
+			Number:  n,
 		})
 	}
 	if cache {

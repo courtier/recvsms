@@ -20,6 +20,8 @@ type Number struct {
 	// Probably no space in-between. This should only be used when
 	// we cannot separate CC and number.
 	FullString string
+	// Backend that lists the number
+	Backend Backend
 }
 
 // Message is a message scraped off a backend.
@@ -33,6 +35,8 @@ type Message struct {
 	Sent string
 	// When the message was scraped off/seen on the website.
 	Found time.Time
+	// Number that received this message
+	Number Number
 }
 
 // Backend is a SMS service that allows anyone to receive SMS represented
