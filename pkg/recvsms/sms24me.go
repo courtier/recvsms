@@ -29,6 +29,7 @@ func NewSMS24MeBackend() *SMS24meBackend {
 	return &b
 }
 
+// ScrapeNumbers implements Backend.ScrapeNumbers()
 func (b *SMS24meBackend) ScrapeNumbers(cache bool) ([]Number, error) {
 	numbers := []Number{}
 	for i := 1; i < 21; i++ {
@@ -61,6 +62,7 @@ func (b *SMS24meBackend) ScrapeNumbers(cache bool) ([]Number, error) {
 	return numbers, nil
 }
 
+// ListMessagesForNumber implements Backend.ListMessagesForNumber()
 func (b *SMS24meBackend) ListMessagesForNumber(n Number, cache bool) ([]Message, error) {
 	messages := []Message{}
 	if len(n.FullString) < 1 {
@@ -94,6 +96,7 @@ func (b *SMS24meBackend) ListMessagesForNumber(n Number, cache bool) ([]Message,
 	return messages, nil
 }
 
+// DiffMessagesForNumber implements Backend.DiffMessagesForNumber()
 func (b *SMS24meBackend) DiffMessagesForNumber(number Number, cache bool) ([]Message, error) {
 	if b.Messages == nil {
 		return nil, errors.New("empty message cache")
@@ -109,10 +112,12 @@ func (b *SMS24meBackend) DiffMessagesForNumber(number Number, cache bool) ([]Mes
 	return messages, nil
 }
 
+// GetName implements Backend.GetName()
 func (b *SMS24meBackend) GetName() string {
 	return b.Name
 }
 
+// GetName implements Backend.GetName()
 func (b *SMS24meBackend) GetNumbers() ([]Number, error) {
 	if b.Numbers != nil {
 		return b.Numbers, nil
@@ -120,6 +125,7 @@ func (b *SMS24meBackend) GetNumbers() ([]Number, error) {
 	return nil, errors.New("no cached numbers")
 }
 
+// GetMessages implements Backend.GetMessages()
 func (b *SMS24meBackend) GetMessages() ([]Message, error) {
 	if b.Messages != nil {
 		return b.Messages, nil
@@ -127,10 +133,12 @@ func (b *SMS24meBackend) GetMessages() ([]Message, error) {
 	return nil, errors.New("no cached messages")
 }
 
+// Score implements Backend.Score()
 func (b *SMS24meBackend) Score() int {
 	return 10
 }
 
+// SetHTTPClient implements Backend.SetHTTPClient()
 func (b *SMS24meBackend) SetHTTPClient(c *http.Client) {
 	b.HTTPClient = c
 }

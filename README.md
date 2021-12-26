@@ -7,9 +7,10 @@ You can think of recvsms as yt-dl for free sms services. It will support many SM
 ## Goals:
 - Support as many services as possible
 - Clean implementation and library
-- Easy to use CLI
+- Easy to use GUI
 - Lightweight
 
 ## TODO:
 - Add more backends
 - Make an actually working program
+- Separate recvsms library from the actual program
