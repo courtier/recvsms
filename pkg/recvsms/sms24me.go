@@ -96,20 +96,11 @@ func (b *SMS24meBackend) DiffMessagesForNumber(number Number, cache bool) ([]Mes
 	if b.Messages == nil {
 		return nil, errors.New("empty message cache")
 	}
-	messages := []Message{}
 	msgs, err := b.ListMessagesForNumber(number, false)
 	if err != nil {
 		return nil, err
 	}
-	for _, m := range msgs {
-		for _, c := range b.Messages {
-			if m.Sender == c.Sender && m.Content == c.Content {
-				goto inCache
-			}
-		}
-		messages = append(messages, m)
-	inCache:
-	}
+	messages := diffMessages(msgs, b.Messages)
 	if cache {
 		b.Messages = msgs
 	}

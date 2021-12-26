@@ -100,3 +100,17 @@ func readBodyToString(body io.ReadCloser) (string, error) {
 	str := string(bs)
 	return str, nil
 }
+
+func diffMessages(msgs, cache []Message) []Message {
+	messages := []Message{}
+	for _, m := range msgs {
+		for _, c := range cache {
+			if m.Sender == c.Sender && m.Content == c.Content {
+				goto inCache
+			}
+		}
+		messages = append(messages, m)
+	inCache:
+	}
+	return messages
+}
