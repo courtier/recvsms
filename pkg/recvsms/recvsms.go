@@ -82,6 +82,11 @@ func ListBackends() map[string]Backend {
 	return backends
 }
 
+// BackendsLength length of available backends
+func BackendsLength() int {
+	return len(backends)
+}
+
 func getAllStringsBetween(str, left, right string) []string {
 	strs := []string{}
 	b := strings.Split(str, left)
