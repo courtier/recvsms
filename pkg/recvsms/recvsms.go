@@ -82,9 +82,20 @@ func ListBackends() map[string]Backend {
 	return backends
 }
 
-// BackendsLength length of available backends
+// BackendsLength returns length of available backends
 func BackendsLength() int {
 	return len(backends)
+}
+
+// BackendNames returns names of available backends
+func BackendNames() []string {
+	s := make([]string, len(backends))
+	i := 0
+	for k := range backends {
+		s[i] = k
+		i++
+	}
+	return s
 }
 
 func getAllStringsBetween(str, left, right string) []string {
