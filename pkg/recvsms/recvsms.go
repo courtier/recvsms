@@ -47,18 +47,22 @@ type Backend interface {
 	// and returns them in an array. If cache is true, messaages will
 	// be cached in the Messages field.
 	ListMessagesForNumber(number Number, cache bool) ([]Message, error)
-	// Returns the name of the backend.
+	// DiffMessages() scrapes a number, then compares the newly scraped messages
+	// to the cache and returns the messages that were not in the cache. Also
+	// caches the new messages if cache is true.
+	DiffMessagesForNumber(number Number, cache bool) ([]Message, error)
+	// GetName returns the name of the backend.
 	GetName() string
-	// Returns the latest cached numbers, if there are any; if not returns error.
+	// GetNumbers returns the latest cached numbers, if there are any; if not returns error.
 	GetNumbers() ([]Number, error)
-	// Returns the latest cached messages, if there are any; if not returns error.
+	// GetMessages returns the latest cached messages, if there are any; if not returns error.
 	GetMessages() ([]Message, error)
-	// (Subjective) score of a backend, a number out of 10. The coder should decide this by considering
+	// Score is the (somewhat subjective) score of a backend, a number out of 10. The coder should decide this by considering
 	// the backend's reliability, stability and quality. A 10 would be
 	// that nearly every number works perfectly and updates the messages
 	// as fast as possible, or even just actually updates the messages.
 	Score() int
-	// Set the HTTP client to be used for the backend, useful when the user
+	// SetHTTPClient sets the HTTP client to be used for the backend, useful when the user
 	// wants to use their own client for proxies, timeouts etc.
 	SetHTTPClient(*http.Client)
 }

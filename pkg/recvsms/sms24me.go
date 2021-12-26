@@ -92,6 +92,30 @@ func (b *SMS24meBackend) ListMessagesForNumber(n Number, cache bool) ([]Message,
 	return messages, nil
 }
 
+func (b *SMS24meBackend) DiffMessagesForNumber(number Number, cache bool) ([]Message, error) {
+	if b.Messages == nil {
+		return nil, errors.New("empty message cache")
+	}
+	messages := []Message{}
+	msgs, err := b.ListMessagesForNumber(number, false)
+	if err != nil {
+		return nil, err
+	}
+	for _, m := range msgs {
+		for _, c := range b.Messages {
+			if m.Sender == c.Sender && m.Content == c.Content {
+				goto inCache
+			}
+		}
+		messages = append(messages, m)
+	inCache:
+	}
+	if cache {
+		b.Messages = msgs
+	}
+	return messages, nil
+}
+
 func (b *SMS24meBackend) GetName() string {
 	return b.Name
 }
