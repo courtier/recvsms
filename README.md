@@ -14,3 +14,4 @@ You can think of recvsms as yt-dl for free sms services. It will support many SM
 - Add more backends
 - Make an actually working program
 - Separate recvsms library from the actual program
+- (If possible) Have a way to detect VoIP numbers
