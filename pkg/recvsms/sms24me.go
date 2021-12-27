@@ -15,7 +15,6 @@ type SMS24meBackend struct {
 	Name       string
 	HTTPClient *http.Client
 	Numbers    []Number
-	Messages   []Message
 }
 
 // NewSMS24MeBackend Returns a new backend for SMS24.me, uses a default
@@ -91,23 +90,23 @@ func (b *SMS24meBackend) ListMessagesForNumber(n Number, cache bool) ([]Message,
 		})
 	}
 	if cache {
-		b.Messages = messages
+		n.Messages = messages
 	}
 	return messages, nil
 }
 
 // DiffMessagesForNumber implements Backend.DiffMessagesForNumber()
 func (b *SMS24meBackend) DiffMessagesForNumber(number Number, cache bool) ([]Message, error) {
-	if b.Messages == nil {
+	if number.Messages == nil {
 		return nil, errors.New("empty message cache")
 	}
 	msgs, err := b.ListMessagesForNumber(number, false)
 	if err != nil {
 		return nil, err
 	}
-	messages := diffMessages(msgs, b.Messages)
+	messages := diffMessages(msgs, number.Messages)
 	if cache {
-		b.Messages = msgs
+		number.Messages = msgs
 	}
 	return messages, nil
 }
@@ -123,14 +122,6 @@ func (b *SMS24meBackend) GetNumbers() ([]Number, error) {
 		return b.Numbers, nil
 	}
 	return nil, errors.New("no cached numbers")
-}
-
-// GetMessages implements Backend.GetMessages()
-func (b *SMS24meBackend) GetMessages() ([]Message, error) {
-	if b.Messages != nil {
-		return b.Messages, nil
-	}
-	return nil, errors.New("no cached messages")
 }
 
 // Score implements Backend.Score()

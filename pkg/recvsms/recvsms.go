@@ -20,8 +20,11 @@ type Number struct {
 	// Probably no space in-between. This should only be used when
 	// we cannot separate CC and number.
 	FullString string
-	// Backend that lists the number
+	// Backend that lists the number.
 	Backend Backend
+	// Messages that this number has received, if any are cached.
+	// Potentially nil.
+	Messages []Message
 }
 
 // Message is a message scraped off a backend.
@@ -49,18 +52,16 @@ type Backend interface {
 	ScrapeNumbers(cache bool) ([]Number, error)
 	// ListMessagesForNumber scrapes all the messages of the number,
 	// and returns them in an array. If cache is true, messaages will
-	// be cached in the Messages field.
+	// be cached in the Messages field of number.
 	ListMessagesForNumber(number Number, cache bool) ([]Message, error)
 	// DiffMessages() scrapes a number, then compares the newly scraped messages
-	// to the cache and returns the messages that were not in the cache. Also
+	// against the cache and returns the messages that were not in the cache. Also
 	// caches the new messages if cache is true.
 	DiffMessagesForNumber(number Number, cache bool) ([]Message, error)
 	// GetName returns the name of the backend.
 	GetName() string
 	// GetNumbers returns the latest cached numbers, if there are any; if not returns error.
 	GetNumbers() ([]Number, error)
-	// GetMessages returns the latest cached messages, if there are any; if not returns error.
-	GetMessages() ([]Message, error)
 	// Score is the (somewhat subjective) score of a backend, a number out of 10. The coder should decide this by considering
 	// the backend's reliability, stability and quality. A 10 would be
 	// that nearly every number works perfectly and updates the messages
