@@ -134,6 +134,7 @@ func listNumbersScreen(numbers []*recvsms.Number) {
 	sortByList := widget.NewSelect(sortByListOptions, func(s string) {
 		fmt.Println(s)
 	})
+	sortByList.PlaceHolder = "Sort By"
 	pickRandomButton := widget.NewButton("Random Number", func() {
 		numberListLeft.Select(rand.Intn(numberListLeft.Length()))
 	})
