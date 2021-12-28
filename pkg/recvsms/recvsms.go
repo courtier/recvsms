@@ -12,8 +12,10 @@ import (
 // CountryCode & PhoneNumber may not always be available,
 // but the FullString field will always be set.
 type Number struct {
-	// Country code.
+	// Country code digits (e.g. +1 for USA).
 	CountryCode string
+	// Country string (e.g. USA).
+	CountryName string
 	// Phone number without country code.
 	PhoneNumber string
 	// String including the country code and the number.
@@ -24,7 +26,7 @@ type Number struct {
 	Backend Backend
 	// Messages that this number has received, if any are cached.
 	// Potentially nil.
-	Messages []Message
+	Messages []*Message
 }
 
 // Message is a message scraped off a backend.
@@ -39,7 +41,7 @@ type Message struct {
 	// When the message was scraped off/seen on the website.
 	Found time.Time
 	// Number that received this message
-	Number Number
+	Number *Number
 }
 
 // Backend is a SMS service that allows anyone to receive SMS represented
@@ -49,19 +51,19 @@ type Backend interface {
 	// ScrapeNumbers scrapes an SMS backend and returns all the numbers
 	// in an array. If cache is true, the numbers will be cached and be available
 	// through the GetNumbers() function.
-	ScrapeNumbers(cache bool) ([]Number, error)
+	ScrapeNumbers(cache bool) ([]*Number, error)
 	// ListMessagesForNumber scrapes all the messages of the number,
 	// and returns them in an array. If cache is true, messaages will
 	// be cached in the Messages field of number.
-	ListMessagesForNumber(number Number, cache bool) ([]Message, error)
+	ListMessagesForNumber(number *Number, cache bool) ([]*Message, error)
 	// DiffMessages() scrapes a number, then compares the newly scraped messages
 	// against the cache and returns the messages that were not in the cache. Also
 	// caches the new messages if cache is true.
-	DiffMessagesForNumber(number Number, cache bool) ([]Message, error)
+	DiffMessagesForNumber(number *Number, cache bool) ([]*Message, error)
 	// GetName returns the name of the backend.
 	GetName() string
 	// GetNumbers returns the latest cached numbers, if there are any; if not returns error.
-	GetNumbers() ([]Number, error)
+	GetNumbers() ([]*Number, error)
 	// Score is the (somewhat subjective) score of a backend, a number out of 10. The coder should decide this by considering
 	// the backend's reliability, stability and quality. A 10 would be
 	// that nearly every number works perfectly and updates the messages
@@ -122,8 +124,8 @@ func readBodyToString(body io.ReadCloser) (string, error) {
 	return str, nil
 }
 
-func diffMessages(msgs, cache []Message) []Message {
-	messages := []Message{}
+func diffMessages(msgs, cache []*Message) []*Message {
+	messages := []*Message{}
 	for _, m := range msgs {
 		for _, c := range cache {
 			if m.Sender == c.Sender && m.Content == c.Content {

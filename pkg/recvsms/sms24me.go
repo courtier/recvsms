@@ -14,7 +14,7 @@ import (
 type SMS24meBackend struct {
 	Name       string
 	HTTPClient *http.Client
-	Numbers    []Number
+	Numbers    []*Number
 }
 
 // NewSMS24MeBackend Returns a new backend for SMS24.me, uses a default
@@ -29,8 +29,8 @@ func NewSMS24MeBackend() *SMS24meBackend {
 }
 
 // ScrapeNumbers implements Backend.ScrapeNumbers()
-func (b *SMS24meBackend) ScrapeNumbers(cache bool) ([]Number, error) {
-	numbers := []Number{}
+func (b *SMS24meBackend) ScrapeNumbers(cache bool) ([]*Number, error) {
+	numbers := []*Number{}
 	for i := 1; i < 21; i++ {
 		resp, err := b.HTTPClient.Get("https://sms24.me/en/numbers/page/" + strconv.Itoa(i) + "/")
 		if err != nil {
@@ -47,8 +47,10 @@ func (b *SMS24meBackend) ScrapeNumbers(cache bool) ([]Number, error) {
 			country := countries.ByName(ctrs[i])
 			cc := country.Info().CallCodes[0].String()
 			n := num[len(cc):]
-			numbers = append(numbers, Number{
+			numbers = append(numbers, &Number{
 				CountryCode: cc,
+				// We do not do ctrs[i] in case of letter case mixup etc.
+				CountryName: country.Info().Name,
 				PhoneNumber: n,
 				FullString:  num,
 				Backend:     b,
@@ -62,8 +64,7 @@ func (b *SMS24meBackend) ScrapeNumbers(cache bool) ([]Number, error) {
 }
 
 // ListMessagesForNumber implements Backend.ListMessagesForNumber()
-func (b *SMS24meBackend) ListMessagesForNumber(n Number, cache bool) ([]Message, error) {
-	messages := []Message{}
+func (b *SMS24meBackend) ListMessagesForNumber(n *Number, cache bool) ([]*Message, error) {
 	if len(n.FullString) < 1 {
 		return nil, errors.New("invalid number")
 	}
@@ -81,8 +82,9 @@ func (b *SMS24meBackend) ListMessagesForNumber(n Number, cache bool) ([]Message,
 
                     `, "\n            </div>")
 	senders := getAllStringsBetween(str, `From: <a href="/en/messages/`, `/">`)
+	messages := []*Message{}
 	for i, m := range msgs {
-		messages = append(messages, Message{
+		messages = append(messages, &Message{
 			Sender:  senders[i],
 			Content: m,
 			Found:   time.Now(),
@@ -96,7 +98,7 @@ func (b *SMS24meBackend) ListMessagesForNumber(n Number, cache bool) ([]Message,
 }
 
 // DiffMessagesForNumber implements Backend.DiffMessagesForNumber()
-func (b *SMS24meBackend) DiffMessagesForNumber(number Number, cache bool) ([]Message, error) {
+func (b *SMS24meBackend) DiffMessagesForNumber(number *Number, cache bool) ([]*Message, error) {
 	if number.Messages == nil {
 		return nil, errors.New("empty message cache")
 	}
@@ -117,7 +119,7 @@ func (b *SMS24meBackend) GetName() string {
 }
 
 // GetName implements Backend.GetName()
-func (b *SMS24meBackend) GetNumbers() ([]Number, error) {
+func (b *SMS24meBackend) GetNumbers() ([]*Number, error) {
 	if b.Numbers != nil {
 		return b.Numbers, nil
 	}
