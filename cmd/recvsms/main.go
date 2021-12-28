@@ -91,7 +91,6 @@ func backendPickerScreen() {
 			output.SetText(output.Text() + "\nError: No numbers could be scraped")
 			return
 		}
-		// TODO: perhaps add this as an option so if the user started multiple scrapes, we won't override numbers afterwards
 		listNumbersScreen(numbers)
 	})
 
