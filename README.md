@@ -4,9 +4,9 @@
 
 You can think of recvsms as yt-dl for free sms services. It will support many SMS "backends" eventually. It also doubles as a sms receiving library.
 
-![Backends](/screenhots/backends.png)
-![Numbers](/screenhots/numbers.png)
-![Messages](/screenhots/messages.png)
+![Backends](screenhots/backends.png)
+![Numbers](screenhots/numbers.png)
+![Messages](screenhots/messages.png)
 
 ## Goals:
 - Support as many services as possible
